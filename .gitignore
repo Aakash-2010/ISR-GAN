@@ -1,0 +1,69 @@
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+
+# Jupyter
+.ipynb_checkpoints/
+*.ipynb
+
+# Model weights (large binary files — download separately)
+*.pt
+*.pth
+*.t7
+*.caffemodel
+*.mat
+*.npy
+*.pb
+*.h5
+*.ckpt
+*.index
+*.data-*
+weights/
+pretrained_models/
+checkpoints/
+
+# Datasets
+datasets/
+data/
+*.tfrecord
+*.tfrecords
+*.tfrec
+
+# Output images / inference results
+outputs/
+
+# Output / inference results
+LR/
+superRes/
+old/
+result/
+results/
+*.zip
+
+# HuggingFace cache
+.cache/
+
+# IDE / editor
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Misc
+model/
