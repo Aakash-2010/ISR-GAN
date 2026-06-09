@@ -1,7 +1,8 @@
 torch
 torchvision
 torchaudio
-opencv-python
+opencv-python-headless
 glob2
 streamlit
 pillow
+huggingface_hub
