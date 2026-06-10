@@ -3,8 +3,8 @@ title: ESRGAN Super Resolution
 emoji: 🔬
 colorFrom: blue
 colorTo: purple
-sdk: streamlit
-sdk_version: "1.35.0"
+sdk: gradio
+sdk_version: "5.0.0"
 app_file: app.py
 pinned: false
 license: mit

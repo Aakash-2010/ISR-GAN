@@ -1,99 +1,70 @@
-import streamlit as st
-from PIL import Image
-import subprocess
-import shutil
-import os
-import sys
+import gradio as gr
 import torch
+import numpy as np
+from PIL import Image
+from huggingface_hub import hf_hub_download
+from RRDBNet_arch import RRDBNet
 
-# Create required directories
-test_img_folder = 'LR/*'
-curr = 'LR/'
-old = 'old/'
-upload_dir = curr
-os.makedirs(upload_dir, exist_ok=True)
-os.makedirs(old, exist_ok=True)
-os.makedirs('results', exist_ok=True)
+MODEL_REPO = "ai-forever/Real-ESRGAN"
+MODEL_FILE = "RealESRGAN_x4.pth"
+DEVICE = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 
-# Use session state to track upscaling success across button clicks
-if 'upscale_successful' not in st.session_state:
-    st.session_state.upscale_successful = False
 
-# Directory to archive
-directory_to_archive = 'results'
-archive_name = 'archive.zip'
+def remap_keys(state_dict):
+    new_sd = {}
+    for k, v in state_dict.items():
+        k = k.replace('conv_body', 'trunk_conv')
+        k = k.replace('body.', 'RRDB_trunk.')
+        k = k.replace('.rdb1.', '.RDB1.')
+        k = k.replace('.rdb2.', '.RDB2.')
+        k = k.replace('.rdb3.', '.RDB3.')
+        k = k.replace('conv_up1', 'upconv1')
+        k = k.replace('conv_up2', 'upconv2')
+        k = k.replace('conv_hr', 'HRconv')
+        k = k.replace('conv_last', 'conv_last')
+        new_sd[k] = v
+    return new_sd
 
-# Streamlit app
-st.title("Image Super Resolution using GANs")
 
-# File uploader widget
-uploaded_files = st.file_uploader("Upload one or more images:", type=["jpg", "png", "jpeg"], accept_multiple_files=True)
+def load_model():
+    path = hf_hub_download(repo_id=MODEL_REPO, filename=MODEL_FILE)
+    model = RRDBNet(in_nc=3, out_nc=3, nf=64, nb=23, gc=32)
+    state_dict = torch.load(path, map_location=DEVICE)
+    model.load_state_dict(remap_keys(state_dict), strict=True)
+    model.eval()
+    return model.to(DEVICE)
 
-# Function to save uploaded images
-def save_uploaded_images(uploaded_files):
-    if uploaded_files:
-        for image_file in uploaded_files:
-            image = Image.open(image_file)
-            image.save(os.path.join(upload_dir, image_file.name))
-        st.success(f"Saved {len(uploaded_files)} image(s).")
 
-# Save uploaded images
-save_uploaded_images(uploaded_files)
+model = load_model()
 
-cuda_available = torch.cuda.is_available()
-device_options = ('cpu', 'cuda') if cuda_available else ('cpu',)
 
-option = st.selectbox(
-    'Which device would you like to use to upscale the images?:',
-    device_options)
+def upscale(image: Image.Image):
+    if image is None:
+        return None
+    image = image.convert("RGB")
+    w, h = image.size
+    if w * h > 800 * 800:
+        image.thumbnail((800, 800), Image.LANCZOS)
 
-if not cuda_available:
-    st.info('No CUDA GPU detected — running on CPU.')
+    img_np = np.array(image).astype(np.float32) / 255.0
+    tensor = torch.from_numpy(
+        np.transpose(img_np[:, :, [2, 1, 0]], (2, 0, 1))
+    ).float().unsqueeze(0).to(DEVICE)
 
-st.write('You selected:', option)
+    with torch.no_grad():
+        out = model(tensor).data.squeeze().float().cpu().clamp_(0, 1).numpy()
 
-# Function to run the external script with arguments
-def run_test():
-    try:
-        # Run the external script with the specified arguments
-        subprocess.run([sys.executable, "test.py", "--device", option], check=True, text=True, capture_output=True)
-        st.write("Upscaling successful.")
-        st.session_state.upscale_successful = True
-    except subprocess.CalledProcessError as e:
-        st.error(f"Error upscaling: {e.stderr}")
+    out = np.transpose(out[[2, 1, 0], :, :], (1, 2, 0))
+    return Image.fromarray((out * 255.0).round().astype(np.uint8))
 
-# Button to trigger the script execution
-if st.button("Upscale!"):
-    run_test()
 
-# Button to create and download the archive with upscaled images
-if st.button("Create and Download Archive"):
-    try:
-        if st.session_state.upscale_successful:
-            # Create the archive in the working directory (where the Streamlit script is located)
-            archive_path = os.path.join(os.getcwd(), archive_name)
-            shutil.make_archive(archive_path, 'zip', directory_to_archive)
+demo = gr.Interface(
+    fn=upscale,
+    inputs=gr.Image(type="pil", label="Low-resolution input"),
+    outputs=gr.Image(type="pil", label="4× upscaled output"),
+    title="ESRGAN Super Resolution",
+    description="Upload a low-resolution image to upscale it 4× using Real-ESRGAN.",
+    allow_flagging="never",
+)
 
-            # Provide a download button to the user with the correct MIME type
-            with open(f"{archive_path}.zip", 'rb') as f:
-                st.download_button(label=f"Download {archive_name}.zip", data=f, key=f"{archive_name}.zip", mime="application/zip")
-
-                # List all files in the directory
-                files = os.listdir(directory_to_archive)
-                for file_name in files:
-                    file_path = os.path.join(directory_to_archive, file_name)
-                    if os.path.isfile(file_path):  # Check if it's a file (not a directory)
-                        os.remove(file_path)
-
-                # Listing all files in the test_img_folder
-                files_to_move = os.listdir('./LR/')
-                for file_name in files_to_move:
-                    source_path = os.path.join(curr, file_name)
-                    destination_path = os.path.join(old, file_name)
-                    # Move the file from source to destination
-                    shutil.move(source_path, destination_path)
-                    print(f"Moved {file_name} to {old}")
-        else:
-            st.warning("Please run upscaling first before downloading.")
-    except Exception as e:
-        st.error(f"Error creating the archive: {e}")
+demo.launch()

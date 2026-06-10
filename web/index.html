@@ -9,7 +9,7 @@
 
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      background: #0f0f13;
+      background: #0a0a0f;
       color: #e2e8f0;
       min-height: 100vh;
       display: flex;
@@ -19,120 +19,348 @@
 
     header {
       width: 100%;
-      max-width: 900px;
-      padding: 3rem 1.5rem 1.5rem;
+      max-width: 860px;
+      padding: 3rem 1.5rem 2rem;
       text-align: center;
     }
 
     header h1 {
-      font-size: clamp(2rem, 5vw, 3.5rem);
+      font-size: clamp(2rem, 5vw, 3.2rem);
       font-weight: 800;
       background: linear-gradient(135deg, #6366f1, #a78bfa, #38bdf8);
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
       background-clip: text;
-      line-height: 1.15;
     }
 
     header p {
-      margin-top: 1rem;
-      font-size: 1.1rem;
+      margin-top: 0.75rem;
       color: #94a3b8;
-      max-width: 560px;
-      margin-inline: auto;
+      font-size: 1.05rem;
     }
 
     .badges {
       display: flex;
-      gap: 0.75rem;
+      gap: 0.6rem;
       justify-content: center;
       flex-wrap: wrap;
-      margin-top: 1.5rem;
+      margin-top: 1.2rem;
     }
 
     .badge {
       background: #1e1e2e;
-      border: 1px solid #334155;
+      border: 1px solid #2d2d44;
       border-radius: 999px;
-      padding: 0.35rem 0.9rem;
-      font-size: 0.8rem;
+      padding: 0.3rem 0.8rem;
+      font-size: 0.78rem;
       color: #94a3b8;
     }
 
-    .cta {
-      margin-top: 2rem;
-    }
-
-    .cta a {
-      display: inline-block;
-      background: linear-gradient(135deg, #6366f1, #8b5cf6);
-      color: #fff;
-      text-decoration: none;
-      font-weight: 700;
-      font-size: 1.05rem;
-      padding: 0.8rem 2.2rem;
-      border-radius: 10px;
-      transition: opacity 0.2s;
-    }
-
-    .cta a:hover { opacity: 0.85; }
-
-    .demo-frame {
+    main {
       width: 100%;
-      max-width: 1100px;
-      padding: 1rem 1.5rem 2rem;
+      max-width: 860px;
+      padding: 0 1.5rem 3rem;
       flex: 1;
     }
 
-    iframe {
-      width: 100%;
-      height: 75vh;
-      min-height: 540px;
-      border: 1px solid #1e293b;
-      border-radius: 12px;
-      background: #1e1e2e;
+    .upload-area {
+      border: 2px dashed #2d2d44;
+      border-radius: 16px;
+      padding: 2.5rem;
+      text-align: center;
+      cursor: pointer;
+      transition: border-color 0.2s, background 0.2s;
+      background: #111118;
+      position: relative;
     }
+
+    .upload-area:hover, .upload-area.drag-over {
+      border-color: #6366f1;
+      background: #16162a;
+    }
+
+    .upload-area input[type="file"] {
+      position: absolute;
+      inset: 0;
+      opacity: 0;
+      cursor: pointer;
+      width: 100%;
+      height: 100%;
+    }
+
+    .upload-icon { font-size: 2.5rem; margin-bottom: 0.75rem; }
+
+    .upload-area p { color: #64748b; font-size: 0.95rem; }
+    .upload-area strong { color: #a78bfa; }
+
+    .btn {
+      display: block;
+      width: 100%;
+      margin-top: 1.25rem;
+      padding: 0.9rem;
+      background: linear-gradient(135deg, #6366f1, #8b5cf6);
+      color: #fff;
+      font-weight: 700;
+      font-size: 1rem;
+      border: none;
+      border-radius: 12px;
+      cursor: pointer;
+      transition: opacity 0.2s, transform 0.1s;
+    }
+
+    .btn:hover:not(:disabled) { opacity: 0.88; transform: translateY(-1px); }
+    .btn:disabled { opacity: 0.45; cursor: not-allowed; }
+
+    .preview-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1.25rem;
+      margin-top: 1.5rem;
+    }
+
+    @media (max-width: 600px) { .preview-grid { grid-template-columns: 1fr; } }
+
+    .preview-card {
+      background: #111118;
+      border: 1px solid #1e1e2e;
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    .preview-card .label {
+      padding: 0.6rem 1rem;
+      font-size: 0.8rem;
+      font-weight: 600;
+      color: #64748b;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      border-bottom: 1px solid #1e1e2e;
+    }
+
+    .preview-card img {
+      width: 100%;
+      display: block;
+      object-fit: contain;
+      max-height: 340px;
+      background: #0a0a0f;
+    }
+
+    .placeholder {
+      height: 200px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: #2d2d44;
+      font-size: 0.9rem;
+    }
+
+    .status {
+      margin-top: 1rem;
+      padding: 0.75rem 1rem;
+      border-radius: 10px;
+      font-size: 0.9rem;
+      display: none;
+    }
+
+    .status.info  { background: #1e293b; color: #7dd3fc; display: block; }
+    .status.error { background: #2d1515; color: #f87171; display: block; }
+    .status.success { background: #14291e; color: #4ade80; display: block; }
+
+    .download-btn {
+      display: inline-block;
+      margin-top: 1rem;
+      padding: 0.6rem 1.5rem;
+      background: #1e293b;
+      color: #7dd3fc;
+      border-radius: 8px;
+      font-size: 0.9rem;
+      text-decoration: none;
+      border: 1px solid #334155;
+      transition: background 0.2s;
+    }
+
+    .download-btn:hover { background: #273548; }
+
+    .spinner {
+      display: inline-block;
+      width: 14px; height: 14px;
+      border: 2px solid rgba(255,255,255,0.3);
+      border-top-color: #fff;
+      border-radius: 50%;
+      animation: spin 0.7s linear infinite;
+      margin-right: 8px;
+      vertical-align: middle;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
 
     footer {
       padding: 1.5rem;
-      font-size: 0.8rem;
-      color: #475569;
+      font-size: 0.78rem;
+      color: #334155;
       text-align: center;
     }
-
     footer a { color: #6366f1; text-decoration: none; }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🔬 ESRGAN Super Resolution</h1>
-    <p>Upscale any image 4× using Enhanced Super-Resolution GANs — running live in your browser.</p>
-    <div class="badges">
-      <span class="badge">PyTorch</span>
-      <span class="badge">RRDB · 23 blocks</span>
-      <span class="badge">4× upscale</span>
-      <span class="badge">CPU &amp; GPU</span>
-    </div>
-    <div class="cta">
-      <a href="https://huggingface.co/spaces/JaCkKnite12/esrgan-super-resolution" target="_blank" rel="noopener">
-        Open Full Demo ↗
-      </a>
-    </div>
-  </header>
 
-  <section class="demo-frame">
-    <iframe
-      src="https://jackknite12-esrgan-super-resolution.hf.space"
-      title="ESRGAN Super Resolution Demo"
-      allow="accelerometer; camera; microphone"
-      loading="lazy"
-    ></iframe>
-  </section>
+<header>
+  <h1>🔬 ESRGAN Super Resolution</h1>
+  <p>Upload any image and get a sharp 4× upscale in seconds.</p>
+  <div class="badges">
+    <span class="badge">PyTorch</span>
+    <span class="badge">RRDB · 23 blocks</span>
+    <span class="badge">4× upscale</span>
+    <span class="badge">Real-ESRGAN</span>
+  </div>
+</header>
 
-  <footer>
-    Built with <a href="https://github.com/xinntao/ESRGAN" target="_blank">ESRGAN</a> ·
-    Hosted on <a href="https://huggingface.co/spaces" target="_blank">Hugging Face Spaces</a> ·
-    <a href="https://github.com/Aakash-2010" target="_blank">GitHub</a>
-  </footer>
+<main>
+  <div class="upload-area" id="dropzone">
+    <input type="file" id="fileInput" accept="image/png,image/jpeg,image/webp" />
+    <div class="upload-icon">🖼️</div>
+    <p><strong>Click to upload</strong> or drag and drop</p>
+    <p style="margin-top:0.4rem;font-size:0.82rem;">PNG, JPG, WEBP — max 5 MB</p>
+  </div>
+
+  <button class="btn" id="upscaleBtn" disabled>Upscale 4×</button>
+
+  <div class="status" id="status"></div>
+
+  <div class="preview-grid" id="previewGrid" style="display:none">
+    <div class="preview-card">
+      <div class="label">Original</div>
+      <img id="inputPreview" src="" alt="Input" />
+    </div>
+    <div class="preview-card">
+      <div class="label">Upscaled 4×</div>
+      <img id="outputPreview" src="" alt="Output" style="display:none" />
+      <div class="placeholder" id="outputPlaceholder">Result will appear here</div>
+    </div>
+  </div>
+
+  <div id="downloadWrap" style="display:none">
+    <a id="downloadLink" class="download-btn" download="upscaled.png">⬇ Download Result</a>
+  </div>
+</main>
+
+<footer>
+  Powered by <a href="https://github.com/xinntao/Real-ESRGAN" target="_blank">Real-ESRGAN</a> ·
+  Model hosted on <a href="https://huggingface.co/spaces/JaCkKnite12/esrgan-super-resolution" target="_blank">Hugging Face Spaces</a> ·
+  <a href="https://github.com/Aakash-2010/ISR-GAN" target="_blank">GitHub</a>
+</footer>
+
+<script>
+  const HF_SPACE = "https://jackknite12-esrgan-super-resolution.hf.space";
+  const API_URL  = `${HF_SPACE}/api/predict`;
+
+  const fileInput    = document.getElementById("fileInput");
+  const dropzone     = document.getElementById("dropzone");
+  const upscaleBtn   = document.getElementById("upscaleBtn");
+  const statusEl     = document.getElementById("status");
+  const previewGrid  = document.getElementById("previewGrid");
+  const inputPreview = document.getElementById("inputPreview");
+  const outputPreview= document.getElementById("outputPreview");
+  const outputPlaceholder = document.getElementById("outputPlaceholder");
+  const downloadWrap = document.getElementById("downloadWrap");
+  const downloadLink = document.getElementById("downloadLink");
+
+  let selectedFile = null;
+
+  function setStatus(msg, type) {
+    statusEl.textContent = msg;
+    statusEl.className = `status ${type}`;
+  }
+
+  function clearStatus() { statusEl.className = "status"; }
+
+  fileInput.addEventListener("change", () => {
+    const file = fileInput.files[0];
+    if (!file) return;
+    selectedFile = file;
+    const url = URL.createObjectURL(file);
+    inputPreview.src = url;
+    previewGrid.style.display = "grid";
+    outputPreview.style.display = "none";
+    outputPlaceholder.style.display = "flex";
+    downloadWrap.style.display = "none";
+    upscaleBtn.disabled = false;
+    clearStatus();
+  });
+
+  dropzone.addEventListener("dragover", e => { e.preventDefault(); dropzone.classList.add("drag-over"); });
+  dropzone.addEventListener("dragleave", () => dropzone.classList.remove("drag-over"));
+  dropzone.addEventListener("drop", e => {
+    e.preventDefault();
+    dropzone.classList.remove("drag-over");
+    const file = e.dataTransfer.files[0];
+    if (file && file.type.startsWith("image/")) {
+      selectedFile = file;
+      const url = URL.createObjectURL(file);
+      inputPreview.src = url;
+      previewGrid.style.display = "grid";
+      outputPreview.style.display = "none";
+      outputPlaceholder.style.display = "flex";
+      downloadWrap.style.display = "none";
+      upscaleBtn.disabled = false;
+      clearStatus();
+    }
+  });
+
+  upscaleBtn.addEventListener("click", async () => {
+    if (!selectedFile) return;
+
+    upscaleBtn.disabled = true;
+    upscaleBtn.innerHTML = '<span class="spinner"></span>Upscaling…';
+    setStatus("Sending image to model… this may take 20–60 seconds on first run.", "info");
+
+    try {
+      const base64 = await toBase64(selectedFile);
+      const payload = {
+        data: [{ path: base64, mime_type: selectedFile.type }]
+      };
+
+      const res = await fetch(API_URL, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(payload)
+      });
+
+      if (!res.ok) throw new Error(`Server returned ${res.status}`);
+
+      const json = await res.json();
+      const resultData = json.data?.[0];
+      if (!resultData) throw new Error("No output returned from model.");
+
+      const imgSrc = resultData.url
+        ? `${HF_SPACE}/file=${resultData.url}`
+        : resultData.path
+        ? `${HF_SPACE}/file=${resultData.path}`
+        : resultData;
+
+      outputPreview.src = imgSrc;
+      outputPreview.style.display = "block";
+      outputPlaceholder.style.display = "none";
+      downloadLink.href = imgSrc;
+      downloadWrap.style.display = "block";
+      setStatus("Done! Your upscaled image is ready.", "success");
+    } catch (err) {
+      setStatus(`Error: ${err.message}`, "error");
+    } finally {
+      upscaleBtn.disabled = false;
+      upscaleBtn.textContent = "Upscale 4×";
+    }
+  });
+
+  function toBase64(file) {
+    return new Promise((resolve, reject) => {
+      const reader = new FileReader();
+      reader.onload = () => resolve(reader.result);
+      reader.onerror = reject;
+      reader.readAsDataURL(file);
+    });
+  }
+</script>
 </body>
 </html>

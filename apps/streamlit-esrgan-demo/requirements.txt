@@ -2,7 +2,7 @@ torch
 torchvision
 torchaudio
 opencv-python-headless
-glob2
-streamlit
+gradio
 pillow
 huggingface_hub
+numpy
